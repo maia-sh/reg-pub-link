@@ -4,11 +4,10 @@ dir <- fs::dir_create(here::here("data", "raw"))
 
 # IntoValue dataset
 # Versions 1 and 2 combined and cleaned, enhanced with PMIDs/DOIs
-# NOTE: access not working so manually downloaded on 2021-05-14
-# "https://raw.githubusercontent.com/quest-bih/IntoValue2/master/data/iv_enhanced_pmids_dois_dataset.csv?token=AJJJ2UH4RVIY43GA2VQNDVLATZFBC"
-# "https://AJJJ2UH4RVIY43GA2VQNDVLATZFBC@raw.githubusercontent.com/quest-bih/IntoValue2/master/data/iv_enhanced_pmids_dois_dataset.csv"
+# NOTE: access not working so manually downloaded on 2021-07-06
 # "https://github.com/quest-bih/IntoValue2/blob/msh-dataset-checks/data/iv_main_dataset.csv"
 # "https://github.com/quest-bih/IntoValue2/blob/master/data/iv_main_dataset.csv"
+# "https://raw.githubusercontent.com/quest-bih/IntoValue2/master/data/iv_main_dataset.csv?token=AJJJ2UEAXMXNWNBD7NUBHMDA4SG2A"
 
 intovalue <-
 

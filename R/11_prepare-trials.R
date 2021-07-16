@@ -219,6 +219,7 @@ trials <-
     "url",
     "publication_date",
     "has_publication",
+    "publication_type",
     "has_pmid",
     "has_pubmed",
     "has_ft_pdf",
