@@ -48,6 +48,7 @@ source(here("R", "analysis", "04_link-reg-pub.R"))
 source(here("R", "analysis", "06_plot-change-over-time.R"))
 source(here("R", "analysis", "trn-regex-analysis.R"))
 source(here("R", "analysis", "cross-registrations.R"))
+source(here("R", "analysis", "logistic-regression.R"))
 # # fs::dir_ls(here("R", "analysis")) %>% 
 # #   purrr::walk(source)
 ```
@@ -64,7 +65,9 @@ source(here("R", "analysis", "cross-registrations.R"))
 
 **Main outcome measures** The proportion of trial registrations incorporating a structured reference (DOI or PMID) to a known results publication. The proportion of clinical trial results publications that reported the known TRN in the metadata, abstract, and full-text.
 
-**Secondary analyses** We explored<!--# tested --> the relationships between (1) TRN in abstract or full-text, and TRN in PubMed metadata, as well as between (2) TRN in PubMed metadata and a linked publication in the registration. We also explored the relationship between registration-publication links and (1) registry, and (2) prospective registration <!--# not sure about this. i think if we do this then glm for the various practices -->. We looked at change in registration-publication linking practices over time. We also looked at reported cross-registrations in the registries as well as additional TRNs reported in trial publications.<!--# We also looked at reporting rates by UMCs, randomized controlled trials (RCTs), and ICMJE-status. We also explored the association of TRN reporting practices with other responsible trial research practices, namely prospective registration and summary results reporting. All analyses are exploratory. -->
+**Secondary analyses** We constructed logistic regression models to explore the relationship between trial completion date, registry, and registration-publication linking. We also looked at reported cross-registrations in the registries as well as additional TRNs reported in trial publications.
+
+We explored<!--# tested --> the relationships between (1) TRN in abstract or full-text, and TRN in PubMed metadata, as well as between (2) TRN in PubMed metadata and a linked publication in the registration. We also explored the relationship between registration-publication links and (1) registry, and (2) prospective registration <!--# not sure about this. i think if we do this then glm for the various practices -->. We looked at change in registration-publication linking practices over time. <!--# We also looked at reporting rates by UMCs, randomized controlled trials (RCTs), and ICMJE-status. We also explored the association of TRN reporting practices with other responsible trial research practices, namely prospective registration and summary results reporting. All analyses are exploratory. -->
 
 **Results** Only `r report_pct_num_denom_trials(n_trials_link_full)` of trials comprehensively link their registrations and publications, meaning a linked publication (DOI or PMID) in the registration as well as the TRN in the publication full-text, abstract, and metadata. In contrast, `r report_n_pct_trials(n_trials_link_none)` trials had no links. The most common link was TRN reported in the full-text, which occurred for `r report_n_pct_trials(n_trials_link_trn_ft)` trials <!--# and reached `r stringr::str_extract(report_link_year("TRN (Full-text)", 2017), "\\d{2}%")` in 2017 in both registries. --><!--# add more secondary? -->
 
@@ -102,7 +105,7 @@ We evaluated linking of registrations and results publications in a cross-sectio
 
 # Methods
 
-## Automated pipeline for data sources and collection
+## Automated pipeline for data collection
 
 We used two cohorts of registered clinical trials and associated results previously developed by @wieschowski2019joce and @riedel2021 and referred to as the "IntoValue" dataset. In brief, the dataset consists of clinical trials registered on ClinicalTrials.gov or the German Clinical Trials Registry (DRKS) and conducted at a German UMC completed between 2009 and 2017, and results publications found via manual searches.
 
@@ -118,7 +121,7 @@ Figure \@ref(fig:flow-methods) show the methods flow using automated techniques<
 knitr::include_graphics(here("docs", "figures", "flow-methods.png"))
 ```
 
-### Exclusion/inclusion criteria
+### Inclusion and exclusion criteria
 
 After updating registry data, we reapplied the IntoValue exclusion criteria to exclude trials that were completed before 2009 or after 2017, were non-interventional, or did not meet the recruitment or study status inclusion criteria (see @wieschowski2019joce and @riedel2021 for further details on these criteria). We also excluded trials without a German UMC lead, as only one of the two IntoValue cohorts included trials not led by German UMCs. For duplicate trials (i.e., appearing in both IntoValue cohorts), we excluded the earlier record. We also excluded trials without results, and trials with results for which we could not find a PMID and full-text publication.
 
@@ -132,7 +135,17 @@ We developed <!--# and evaluated [or more methods details] -->regexes for the TR
 
 The output of this TRN extraction, cleaning, and deduplication included TRNs beyond those of the known registrations. These additional TRNs could be cross-registrations of the same trial or provided as background or discussion. For this study, we were interested in whether known registrations were reported in the publication, so we filtered for reported TRNs matching the known registrations. <!--# change this if considering cross-reg -->
 
-<!--# Using registry APIs, when available, and web scraping, we checked whether each unique TRN resolved to a valid trial registration. currently placeholder "TRUE" such that all TRNs resolve in the registries --><!--# Since i'm focusing iv trn only, should i change this section so not ALL the trns? then would have to change my backend work. or can keep this section but maybe not report all the details in text but just appendix? -->
+<!--# Using registry APIs, when available, and web scraping, we checked whether each unique TRN resolved to a valid trial registration. currently placeholder "TRUE" such that all TRNs resolve in the registries -->
+
+<!--# Since i'm focusing iv trn only, should i change this section so not ALL the trns? then would have to change my backend work. or can keep this section but maybe not report all the details in text but just appendix? -->
+
+## Analysis
+
+We generated descriptive statistics on trial and publication characteristics, overall and by registry. We calculated the number and proportion of trials linked via the publication (full-text, abstract, metadata) and the registration. <!--#with each type of link and different combination of links.-->
+
+To explore change over time, the relationships between types of links, and differences between registries, we ran exploratory logistic regressions for each link type, with all other link types as well as registry and year as explanatory variables. In particular, since PubMed metadata may be generated from the publication abstract or full-text, we examined the relationship between TRN reporting in either the abstract or full-text, and TRN inclusion in the metadata.
+
+Additionally, since ClinicalTrials.gov registrations automatically reference publications with the TRN in the PubMed metadata (whereas DRKS does not), we examined the proportion of automatically vs. manually linked publications in ClinicalTrials.gov. To explore registry differences for only manually linked references, we excluded automated links and calculated the number and proportion of trials with the publication linked in the registration. <!--#add automatic links to regression for pub in registry? in which case would need to recode NA as FALSE. To explore whether automated links explains registry differences in publication links in the registry...-->
 
 ## Software, code, and data
 
@@ -142,7 +155,7 @@ Data collection, preparation, and analysis was performed in R version 4.0.2 (R F
 
 ## Trial and publication characteristics
 
-The IntoValue trials dataset included the full sample of trials led by a German UMC that were registered on ClinicalTrials.gov or DRKS and completed between 2009 and 2017 (n = `r n_trials_iv`). After applying our exclusion criteria, our sample included `r n_trials_ft_pdf` trials with `r n_pubs_unique` unique results publications indexed in PubMed and available as full-text, as some publications include results from more than one trial. Figure \@ref(fig:flow-trials) details the trial and publication screening. Table \@ref(tab:tbl-trials) shows summary descriptive details of the trials with results publications. <!--# QUESTION: what summary info about trials and publications? I also include a long version of demographic data in case we want to include any of these, ideally with collapsed categories, in Table @ref(tab:tbl-trials-full) -->
+The IntoValue trials dataset includes all trials led by a German UMC that were registered on ClinicalTrials.gov or DRKS and completed between 2009 and 2017 (n = `r n_trials_iv`). After applying our exclusion criteria, our sample included `r n_trials_ft_pdf` trials with `r n_pubs_unique` unique results publications indexed in PubMed and available as full-text, as some publications include results from more than one trial. Figure \@ref(fig:flow-trials) details the trial and publication screening. Table \@ref(tab:tbl-trials) shows summary descriptive details of the trials with results publications by registry. <!--# QUESTION: what summary info about trials and publications? I also include a long version of demographic data in case we want to include any of these, ideally with collapsed categories, in Table @ref(tab:tbl-trials-full) -->
 
 ```{r flow-trials, fig.cap = "Trials and publications screening", out.width="50%", out.height="50%"}
 knitr::include_graphics(here("docs", "figures", "flow-trials.png"))
@@ -156,15 +169,47 @@ tbl_trials %>%
 
 ## Registration-publication links
 
-While per our inclusion criteria all trials in our sample (n = `r n_trials_ft_pdf`) were registered and had a publication, only `r report_n_pct_trials(n_trials_link_full)` trials had the most comprehensive registration-publication linking, meaning a linked publication in the registration as well as the TRN in the publication full-text, abstract, and metadata. In contrast, we found `r report_n_pct_trials(n_trials_link_none)` trials with no links in either the registration or the publication. Figure \@ref(fig:plot-upset-links-reg-pub-registries) shows the breakdown of registration-publication links across the various components for ClinicalTrial.gov and DRKS trials.
+While per our inclusion criteria all trials in our sample (n = `r n_trials_ft_pdf`) were registered and had a publication, only `r report_n_pct_trials(n_trials_link_full)` trials had the most comprehensive registration-publication linking, meaning a linked publication in the registration as well as the TRN in the publication full-text, abstract, and PubMed metadata. Disregarding metadata, which is beyond a trialist's control, an additional `r n_trials_link_ft_abs_reg - n_trials_link_full` trials had comprehensive linking for a total of `r report_n_pct_trials(n_trials_link_ft_abs_reg)`. In contrast, we found `r report_n_pct_trials(n_trials_link_none)` trials with no links in either the registration or the publication. The most common linking practice was reporting of the TRN in the full-text only, accounting for `r report_n_pct_trials(n_trials_link_trn_ft_only)` trials. The inclusion of the various link types ranged from `r report_pct_num_denom_trials(n_trials_link_trn_abs)` in abstracts to `r report_pct_num_denom_trials(n_trials_link_trn_ft)` in full-text. Table \@ref(tab:tbl-link-by-reg) shows registration-publication links overall and by registry. <!--# point estimates in table should have CI, right? -->Figure \@ref(fig:plot-upset-links-reg-pub-registries) shows the intersection of registration-publication links across the various types for ClinicalTrial.gov and DRKS trials.<!--#shows the number of trials with each link type and combination of link types, overall and by registry.-->
+
+```{r tbl-link-by-reg}
+tbl_link_by_reg %>% 
+  gtsummary::as_flex_table() %>% 
+  flextable::set_caption(caption = "Registration-publication links by registry")
+```
 
 ```{r plot-upset-links-reg-pub-registries, fig.cap = "Registration-publication links in ClinicalTrials.gov and DRKS", out.width="80%"}
 knitr::include_graphics(here("docs", "figures", "plot-upset-links-reg-pub-registry.png"))
 ```
 
+### Logistic regression
+
+```{r tbl-trials-regression}
+tbl_trials_regression %>% 
+  gtsummary::as_flex_table() %>% 
+  flextable::set_caption(caption = "Crude and adjuusted odds ratios for factors associated with publication-registration links")
+```
+
+Table \@ref(tab:tbl-trials-regression) shows the crude univariate and adjusted multivariate odds ratios (ORs) for each type of publication-registration link across all explanatory variables. Completion year did not have a strong relationship with linking practices, although trials completing more recently were significantly more likely report the TRN in the abstract (`r inline_text(cor_abs, variable = "completion_year", pattern = "cOR {estimate} [{ci}]")`; `r inline_text(aor_abs, variable = "completion_year", pattern = "aOR {estimate} [{ci}]")`) and full-text (`r inline_text(cor_ft, variable = "completion_year", pattern = "cOR {estimate} [{ci}]")`; `r inline_text(aor_ft, variable = "completion_year", pattern = "aOR {estimate} [{ci}]")`). Figure \@ref(fig:plot-links-year-reg) shows the rate of registration-publication links over time for ClinicalTrials.gov and DRKS.
+
+```{r plot-links-year-reg, fig.cap = "Change over time in registration-publication links in ClinicalTrials.gov and DRKS. Completion year from registry."}
+knitr::include_graphics(here("docs", "figures", "plot-links-year-reg.png"))
+```
+
+With regards to the relationship between link types,<!--#in the adjusted analysis,--> trials with one type of link were generally more likely to have another type of link. <!--#However, trials with a TRN in the full-text were significantly less likely to have the publication linked in the registration (`r inline_text(aor_reg, variable = "has_iv_trn_ft_pdf", pattern = "aOR {estimate} [{ci}]")` ; `r inline_text(aor_ft, variable = "has_reg_pub_link", pattern = "aOR {estimate} [{ci}]")`).--> In particular, TRNs were significantly more likely to appear in the PubMed metadata if included in the abstract (`r inline_text(aor_si, variable = "has_iv_trn_abstract", pattern = "aOR {estimate} [{ci}]")`), but not significantly more likely if included in the full-text (`r inline_text(aor_si, variable = "has_iv_trn_ft_pdf", pattern = "aOR {estimate} [{ci}]")`). Futhermore, DRKS TRNs were significantly less likely than ClinicalTrials.gov TRNs to appear in the PubMed metadata (`r inline_text(aor_si, variable = "registry", level = "DRKS", pattern = "aOR {estimate} [{ci}]")`). Similarly, for trials with a TRN in either abstract or full-text, ClinicalTrials.gov TRNs appeared at a higher rate than DRKS TRNs in the metadata (62% vs. 18%). Table X shows the number and proportion of trials with a TRN in the metadata given TRN in the abstract, full-text, or either, overall and by registry.
+
+**Table X. Number and Proportion of trials with TRN in metadata given TRN in abstract, full-text, or either. Denominator indicates number of trials with TRN in abstract or full-text, from the respective registry.**
+
+|                                         | Overall        | ClinicalTrials.gov | DRKS         |
+|-----------------------------------------|----------------|--------------------|--------------|
+| **TRN in either abstract or full-text** | 53% (723/1372) | 62% (669/1077)     | 18% (54/295) |
+| **TRN in abstract**                     | 85% (605/714)  | 97% (562/580)      | 32% (43/134) |
+| **TRN in full-text**                    | 45% (513/1131) | 54% (471/878)      | 17% (42/253) |
+
+DRKS trials were also significantly less likely than ClinicalTrials.gov trials to reference the publication in the registration (`r inline_text(aor_reg, variable = "registry", level = "DRKS", pattern = "aOR {estimate} [{ci}]")`). <!--#Inclusion of the TRN in the abstract was significantly less likely in DRKS than ClinicalTrials.gov trials in the crude data (`r inline_text(cor_abs, variable = "registry", level = "DRKS", pattern = "cOR {estimate} [{ci}]")`), whereas more likely in the adjusted analysis (`r inline_text(aor_abs, variable = "registry", level = "DRKS", pattern = "aOR {estimate} [{ci}]")`).--> Most (`r report_pct_num_denom_trials(n_trials_ctgov_link_reg_trn_si_derived, n_trials_link_reg_ctgov)`) ClinicalTrials.gov trials referencing the publication in the registration had the link automatically derived from the PubMed metadata, which is not currently possible for DRKS. Excluding trials with automatically linked publications, ClinicalTrials.gov and DRKS had similar rates of referencing publication in the registration (24%, 186/783 vs. 21%, 96/447).
+
 ### Publications linked in registrations
 
-We found that `r report_pct_num_denom_trials(n_trials_link_reg)` of registrations included a reference with a publication identifier (DOI or PMID) to the associated publication in our sample of trials with published results. Only `r report_pct_num_denom_trials(n_trials_link_reg_drks, n_trials_drks)` of DRKS trials referenced the results publication in the registration, in contrast with `r report_pct_num_denom_trials(n_trials_link_reg_ctgov, n_trials_ctgov)` of ClinicalTrials.gov trials, of which `r report_pct_num_denom_trials(n_trials_ctgov_link_reg_trn_si_derived, n_trials_link_reg_ctgov)` were automatically indexed.
+We found that `r report_pct_num_denom_trials(n_trials_link_reg)` of registrations included a reference with a publication identifier (DOI or PMID) to the associated publication in our sample of trials with published results. Only `r report_pct_num_denom_trials(n_trials_link_reg_drks, n_trials_drks)` of DRKS trials referenced the results publication in the registration, in contrast with `r report_pct_num_denom_trials(n_trials_link_reg_ctgov, n_trials_ctgov)` of ClinicalTrials.gov trials, of which `r report_pct_num_denom_trials(n_trials_ctgov_link_reg_trn_si_derived, n_trials_link_reg_ctgov)` were automatically indexed from PubMed metadata.
 
 <!--# @daniel: you had several comments about automatically linked pubs so I don't think the language I had was clear. I tried several wordings below. Let's discuss and figure out what is clearest. -->
 
@@ -182,15 +227,7 @@ We found that `r report_pct_num_denom_trials(n_trials_link_trn_none)` trials did
 
 ### Linking by registry
 
-We found that trials with a ClinicalTrials.gov TRN were significantly more likely than trials with a DRKS TRN to include a publication reference in the registry (`r apa::apa(chisq_link_by_reg_reg, print_n = TRUE)`) and to include the TRN in the PubMed metadata (`r apa::apa(chisq_link_by_reg_si, print_n = TRUE)`) and abstract (`r apa::apa(chisq_link_by_reg_abs, print_n = TRUE)`). We did not find a significant relationship between registry and TRN reporting in full-text (`r apa::apa(chisq_link_by_reg_pdf, print_n = TRUE)`). Table \@ref(tab:tbl-link-by-reg) shows summary registration-publication links by registry.
-
-<!--# point estimtes in table should have CI, right? -->
-
-```{r tbl-link-by-reg}
-tbl_link_by_reg %>% 
-  gtsummary::as_flex_table() %>% 
-  flextable::set_caption(caption = "Registration-publication links by registry")
-```
+We found that trials with a ClinicalTrials.gov TRN were significantly more likely than trials with a DRKS TRN to include a publication reference in the registry (`r apa::apa(chisq_link_by_reg_reg, print_n = TRUE)`) and to include the TRN in the PubMed metadata (`r apa::apa(chisq_link_by_reg_si, print_n = TRUE)`) and abstract (`r apa::apa(chisq_link_by_reg_abs, print_n = TRUE)`). We did not find a significant relationship between registry and TRN reporting in full-text (`r apa::apa(chisq_link_by_reg_pdf, print_n = TRUE)`).
 
 ### TRN reporting in PubMed metadata
 
@@ -199,20 +236,6 @@ tbl_link_by_reg %>%
 For the 1,372 trials that provided a TRN in either the abstract or full-text, a TRN was also available in the metadata in 55% (n = 767). ClinicalTrials.gov TRNs (65%, 705/1077) were more likely than DRKS TRNs (21%, 62/295) to be included in PubMed metadata. Furthermore, 97% (563/580) of trials with a ClinicalTrials.gov TRN in the abstract also had the TRN in the PubMed metadata, compared with 23% (31/134) of trials with a DRKS TRN. Similarly, 58% (507/878) of trials with a ClinicalTrials.gov TRN in the full-text also had the TRN in the PubMed metadata, compared with 18% (48/253) of trials with a DRKS TRN.
 
 A chi-square test of independence was performed to examine the relation between registry and TRN in PubMed metadata, for trials with TRN reported in both the abstract and the full-text. The relation between these variables was significant, X2 (1, N = 473) = 201.0, p = 1.07e-45. Trials with a ClinicalTrials.gov TRN (Proportion with TRN in SI = 95.5%) were more likely than trials with a DRKS TRN (Proportion with TRN in SI = 33.7%) to have a TRN in PubMed metadata if reported in both the abstract and the full-text (Difference in reporting = 61.8%, CI = 52.5, 71.4).
-
-### TRN reporting given prospective registration
-
-<!--# Are TRNs reported more or less often in abstract OR full text for prospective or retrospective registrations? -->
-
-A chi-square test of independence was performed to examine the relation between prospective registration and TRN reporting in either the abstract or the full-text (abstract-only, full-text-only, both, neither). Registration was categorized as prospective if the trial was registered in the same or preceding months to trial start, since trial start on ClinicalTrials.gov is sometimes available with month and year only. Two trials (NCT02127736, NCT02213406) without start dates and were excluded from this analysis as we could not determine whether registration was prospective. The relation between these variables was significant, X2 (1, N = 1894) = 22.8, p = .00000182. Prospectively registered trials (Proportion reporting = X) were more likely than retrospectively registered trials (Proportion reporting = X) to report the TRN in either the abstract and/or the full-text (Difference in reporting = X, CI = X, X).
-
-### Change in registration-publication linkage over time, by registry
-
-Overall, DRKS trials appear to be less robustly linked than ClinicalTrials.gov trials. Overall, we observed positive trends for TRN reporting in full-text and abstracts. <!--# add test? --> Figure \@ref(fig:plot-links-year-reg) shows the registration-publication links over time for ClinicalTrials.gov and DRKS.
-
-```{r plot-links-year-reg, fig.cap = "Change over time in registration-publication links in ClinicalTrials.gov and DRKS. Completion year from registry."}
-knitr::include_graphics(here("docs", "figures", "plot-links-year-reg.png"))
-```
 
 ## Cross-registrations
 
@@ -307,3 +330,5 @@ ctregistries::registries %>%
   flextable::flextable(cwidth = 2) %>% 
   flextable::set_caption(caption = "Trial registration number regular expressions")
 ```
+
+# Sensitivity Analyses

@@ -36,6 +36,15 @@ n_trials_link_none <-
   ) %>%
   nrow()
 
+n_trials_link_ft_abs_reg <-
+  trials %>%
+  filter(has_reg_pub_link &
+           # has_iv_trn_secondary_id &
+           has_iv_trn_abstract &
+           has_iv_trn_ft_pdf
+  ) %>%
+  nrow()
+
 
 # Publication reference in registration -----------------------------------
 
@@ -101,6 +110,11 @@ n_trials_link_trn_ft <-
 n_trials_link_trn_ft_abs <-
   trials %>%
   filter(has_iv_trn_ft_pdf & has_iv_trn_abstract) %>%
+  nrow()
+
+n_trials_link_trn_ft_only <-
+  trials %>%
+  filter(has_iv_trn_ft_pdf & !has_iv_trn_abstract & !has_iv_trn_secondary_id & !has_reg_pub_link) %>%
   nrow()
 
 # How many trials with trn in ft or abs do not have trn in si?
@@ -269,9 +283,13 @@ tbl_link_by_reg <-
       has_iv_trn_ft_pdf ~ "TRN (Full-text)"
     )
   ) %>%
+
+  #TODO: figure out what test/stats to include
+  add_difference() %>%
+  # add_p() %>%
+  add_overall() %>% #show_header_names()
   # Move stats legend to each line
   # add_stat_label(location = NULL) %>%
-  add_p() %>%
   modify_header(label = "**Registration-Publication Linkage**") %>%
   # modify_caption("**German UMC-led trials with published result** (N = {N})") %>%
   bold_labels()
