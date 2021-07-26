@@ -242,6 +242,15 @@ n_trials_drks_trn_si_not_linked_pub <-
   ) %>%
   nrow()
 
+# How many drks trials have trn in si
+n_trials_drks_trn_si <-
+  trials %>%
+  filter(
+    registry == "DRKS",
+    has_iv_trn_secondary_id
+  ) %>%
+  nrow()
+
 
 # TODO
 # How many trials have linked pub, excluding derived?
