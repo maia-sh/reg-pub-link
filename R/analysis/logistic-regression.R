@@ -30,17 +30,28 @@ tbl_glm_mv_trials <- function(trials_formula) {
     data = trials_model,
     family = "binomial"
   ) %>%
+
     gtsummary::tbl_regression(
       exponentiate = TRUE,
       show_single_row = c(-completion_year, -registry),
       # add_estimate_to_reference_rows = TRUE # Change reference row
     ) %>%
+
     modify_table_styling(
       column = estimate,
       rows = !is.na(estimate),
       cols_merge_pattern = "{estimate} ({ci}; {p.value})",
       label = "**aOR (95% CI; p-value)**"
     ) %>%
+
+    # Change reference label
+    # Thanks to gtsummary dev: https://github.com/ddsjoberg/gtsummary/issues/942
+    modify_table_styling(
+      column = estimate,
+      rows = reference_row %in% TRUE,
+      missing_symbol = "1 (Ref)"
+    ) %>%
+
     modify_header(update = list(label ~ ""))
 }
 
@@ -49,7 +60,9 @@ tbl_glm_mv_trials <- function(trials_formula) {
 tbl_glm_uv_trials <- function(outcome) {
 
   trials_model %>%
+
     select(completion_year, registry, has_iv_trn_secondary_id, has_iv_trn_ft_pdf, has_reg_pub_link, has_iv_trn_abstract) %>%
+
     tbl_uvregression(
       method = glm,
       y = {{outcome}},
@@ -67,6 +80,14 @@ tbl_glm_uv_trials <- function(outcome) {
       label = "**cOR (95% CI; p value)**",
       # footnote_abbrev = "cOR = Crude Odds Ratio,  CI = Confidence Interval "
     ) %>%
+
+    # Change reference label
+    modify_table_styling(
+      column = estimate,
+      rows = reference_row %in% TRUE,
+      missing_symbol = "1 (Ref)"
+    ) %>%
+
     modify_header(update = list(label ~ ""))
   # modify_footnote(or ~ "cOR = Crude Odds Ratio")
 }
@@ -79,6 +100,7 @@ aor_reg <-
     "has_reg_pub_link ~ completion_year + registry +
       has_iv_trn_secondary_id + has_iv_trn_abstract + has_iv_trn_ft_pdf"
   )
+
 
 aor_si <-
   tbl_glm_mv_trials(
@@ -124,9 +146,17 @@ tbl_trials_regression <-
   modify_footnote(update = starts_with("estimate") ~ "cOR = Crude Odds Ratio, aOR = Adjusted Odds Ratio, CI = Confidence Interval") #%>%
 
 #TODO: replace empty cells with explicit NA or dash
-  # modify_table_styling(
-  #   missing_symbol = "HELLO"
-  # )
+#https://stackoverflow.com/questions/68593672/change-empty-cells-in-gtsummarytbl-merge
+tbl_trials_regression %>%
+# modify_table_styling(
+#   missing_symbol = "HELLO"
+# )
+modify_table_styling(
+  column = everything(),
+  rows = !is.na(variable),
+  missing_symbol = "Hi"
+)
+
 
 # Display regressions (grouped by regression type) ------------------------
 # i.e., all cor for all outcomes, before any aor
