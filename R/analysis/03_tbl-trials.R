@@ -61,27 +61,56 @@
 
 # Summarize selected trial info -------------------------------------------
 
+# ClinicalTrials.gov and DRKS use different phase names
+# We use IntoValue's lookup table to coalesce names
+# Repo is currently private so using URL and later will switch to repo
+# registries_lookup_path <- "https://github.com/quest-bih/IntoValue2/blob/master/data/2_dataset_cleaning/final_dataset/iv_data_lookup_registries.csv"
+
+registries_lookup_path <- fs::path(fs::path_dir(here()), "IntoValue2", "data/2_dataset_cleaning/final_dataset/iv_data_lookup_registries.csv" )
+
+phase_lookup <-
+  read_csv(registries_lookup_path) %>%
+  filter(name == "phase") %>%
+  select(phase = level_registry, phase_unified = level_unified)
+
+N_JOURNALS <- 6
+
 tbl_trials <-
   trials %>%
 
-  # Add pubmed journal info and munge so display top 5
+  # Add pubmed journal info and munge so display top N_JOURNALS
   left_join(select(pubmed_all, journal, pmid), by = "pmid") %>%
-  # group_by(registry) %>%
   mutate(
     journal = if_else(journal == "Lancet (London, England)", "Lancet", journal),
-    journal = forcats::fct_lump_n(journal, n = 5, other_level = NA),
+
+
+    # journal = stringi::stri_trans_totitle(journal),
+    journal = gsub("\\b([a-z])", "\\U\\1", journal, perl=TRUE),
+    journal = str_replace(journal, "Of", "of"),
+
+    journal = forcats::fct_lump_n(journal, n = N_JOURNALS, other_level = NA),
     journal = forcats::fct_infreq(journal)
   ) %>%
+
+
+  # Prepare industry sponsor
+  mutate(industry_sponsor = ifelse(main_sponsor == "Industry", TRUE, FALSE)) %>%
+
+  # Prepare phase
+  left_join(phase_lookup, by = "phase") %>%
 
   select(
     registry,
     days_cd_to_publication,
-    # days_cd_to_summary,
-    # has_summary_results,
-    # is_multicentric,
-    # enrollment,
-    is_randomized,
+    days_cd_to_summary,
+    has_summary_results,
     is_prospective,
+    is_randomized,
+    is_multicentric,
+    industry_sponsor,
+    enrollment,
+    phase_unified,
+    # center_size
     # n_crossreg_reg,
     # n_crossreg_abstract, n_crossreg_secondary_id, n_crossreg_ft_pdf,
     journal,
@@ -107,12 +136,14 @@ tbl_trials <-
       # n_crossreg_secondary_id ~ "Additional TRNs in PubMed metadata",
       # n_crossreg_ft_pdf ~ "Additional TRNs in full-text",
       days_cd_to_publication ~ "Time from trial completion to publication (days)",
-      # has_summary_results ~ "Registry summary results available",
-      # days_cd_to_summary ~ "Time from trial completion to summary results (days)",
+      has_summary_results ~ "Registry summary results available",
+      days_cd_to_summary ~ "Time from trial completion to summary results (days)",
 
-      # is_multicentric ~ "Multicentric trial",
-      # enrollment ~ "Trial enrollment",
-      journal ~ "Top 5 journals",
+      is_multicentric ~ "Multicentric trial",
+      enrollment ~ "Trial enrollment",
+      industry_sponsor ~ "Industry sponsor",
+      phase_unified ~ "Phase",
+      journal ~ glue::glue("Top {N_JOURNALS} journals"),
       completion_year ~ "Trial completion date"
     )
     # sort = list(
@@ -121,9 +152,24 @@ tbl_trials <-
     # )
   ) %>%
 
+  add_overall() %>%
+
   # Move stats legend to each line
   add_stat_label() %>%
 
-  modify_header(label = "**German UMC-led trials with published results**") %>%
-  # modify_caption("**German UMC-led trials with published result** (N = {N})") %>%
-  bold_labels()
+  # modify_header(label = "**German UMC-led trials with published results**") %>%
+  modify_caption("**Characteristics of German UMC-led trials with published results** A trial was considered randomized if allocation included randomization. A trial was considered prospectively registered if registered in the same or previous months to start date. Summary results were taken from a structured data field in ClinicalTrials.gov, and determined based on manual inspection for terms such as *Ergebnisbericht* or *Abschlussbericht* in DRKS. *Top* journals refer to the journals with the greatest number of trial publications in our sample.") %>%
+  bold_labels() %>%
+
+  # Remove rowname label
+  modify_header(label = "")
+
+# x<-
+# tbl_trials %>%
+#   as_gt() %>%
+#   tab_footnote(
+#     footnote = "Color indicates height of sun.",
+#     locations = cells_stub(
+#     rows = 2
+#   )
+# )
