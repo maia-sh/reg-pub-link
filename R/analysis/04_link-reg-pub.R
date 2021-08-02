@@ -278,30 +278,34 @@ tbl_link_by_reg <-
   trials %>%
   select(
     registry,
-    has_reg_pub_link,
-    has_iv_trn_secondary_id,
+    has_iv_trn_ft_pdf,
     has_iv_trn_abstract,
-    has_iv_trn_ft_pdf
+    has_iv_trn_secondary_id,
+    has_reg_pub_link
   ) %>%
   gtsummary::tbl_summary(
     by = registry,
     label = list(
-      has_reg_pub_link ~ "Reference in registration",
-      has_iv_trn_secondary_id ~ "TRN (PubMed metadata)",
+      has_iv_trn_ft_pdf ~ "TRN (Full-text)",
       has_iv_trn_abstract ~ "TRN (Abstract)",
-      has_iv_trn_ft_pdf ~ "TRN (Full-text)"
+      has_iv_trn_secondary_id ~ "TRN (PubMed metadata)",
+      has_reg_pub_link ~ "Reference in registration"
     )
   ) %>%
 
   #TODO: figure out what test/stats to include
-  add_difference() %>%
+  # add_difference() %>%
   # add_p() %>%
   add_overall() %>% #show_header_names()
   # Move stats legend to each line
   # add_stat_label(location = NULL) %>%
-  modify_header(label = "**Registration-Publication Linkage**") %>%
+  # modify_header(label = NULL) #%>%
+  modify_header(label = "") %>%
+  # modify_header(label = "**Registration-Publication Linkage**") %>%
   # modify_caption("**German UMC-led trials with published result** (N = {N})") %>%
-  bold_labels()
+  bold_labels() %>%
+  modify_footnote(everything() ~ NA)
+
 
 # TODO: Continuity correct set to FALSE. is this ok?
 # chisq_link_by_reg_pdf_tidy <-
