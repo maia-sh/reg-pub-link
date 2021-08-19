@@ -37,4 +37,5 @@ tbl_si_ft <- tbl_si_registry(has_iv_trn_ft_pdf, "TRN in full-text")
 
 tbl_si_if_abs_ft <-
   tbl_stack(list(tbl_si_abs_or_ft, tbl_si_abs, tbl_si_ft)) %>%
-  modify_caption("Number and proportion of trials with TRN in metadata given TRN in abstract, full-text, or either. Denominator indicates number of trials with TRN in abstract and/or full-text, from the respective registry.")
+  modify_caption("Number and proportion of trials with TRN in metadata given TRN in abstract, full-text, or either. Denominator in each cell indicates number of trials with TRN in abstract, full-text, or either, overall or from the respective registry.") %>%
+  modify_spanning_header(all_stat_cols() ~ "**TRN in Metadata**")

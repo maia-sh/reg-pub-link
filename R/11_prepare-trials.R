@@ -1,4 +1,5 @@
 library(dplyr)
+library(tidyr)
 library(readr)
 library(here)
 library(fs)
@@ -82,25 +83,49 @@ trials <-
     preconditions = ~ . %>% filter(has_pubmed & has_ft_pdf)
   )
 
-# Add info about registry reference links
+# Add info about registry reference links: any, any with doi or pmid, intovalue
+
+# Number of references in registration
+references_any <-
+  registry_references %>%
+  count(id, name = "n_reg_pub_any")
+
+# Limit references to unique with doi or pmid
+registry_references <-
+  registry_references %>%
+  filter(!(is.na(doi) & is.na(pmid))) %>%
+  distinct()
+
+# Number of references with doi or pmid in registration
+references_doi_or_pmid <-
+  registry_references %>%
+  count(id, name = "n_reg_pub_doi_or_pmid")
+
 pmid_references <-
   registry_references %>%
   select(-doi, -reference_type) %>%
-  tidyr::drop_na(pmid) %>%
+  drop_na(pmid) %>%
   mutate(pmid_link = TRUE) %>%
   distinct()
 
 doi_references <-
   registry_references %>%
   select(-pmid, -reference_type) %>%
-  tidyr::drop_na(doi) %>%
+  drop_na(doi) %>%
   mutate(doi_link = TRUE) %>%
   distinct()
 
 trials <-
   trials %>%
 
-  # Join in registry references by pmid
+  # Join in registry references (any, and pmid or doi)
+  left_join(references_any, by = "id") %>%
+  left_join(references_doi_or_pmid, by = "id") %>%
+  mutate(
+    n_reg_pub_any = replace_na(n_reg_pub_any, as.integer(0)),
+    n_reg_pub_doi_or_pmid = replace_na(n_reg_pub_doi_or_pmid, as.integer(0))
+  ) %>%
+  # Join in intovalue registry references by pmid
   left_join(pmid_references, by = c("id", "pmid")) %>%
   left_join(doi_references, by = c("id", "doi")) %>%
 
@@ -235,7 +260,9 @@ trials <-
     "n_crossreg_secondary_id",
     "n_crossreg_abstract",
     "n_crossreg_ft_pdf",
-    "n_crossreg_reg"
+    "n_crossreg_reg",
+    "n_reg_pub_any",
+    "n_reg_pub_doi_or_pmid"
   )
 
 # Check that all intovalue columns in trials

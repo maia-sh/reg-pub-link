@@ -93,7 +93,8 @@ ctgov_references <-
   )
 
 registry_references <-
-  bind_rows(ctgov_references, drks_references) %>%
-  filter(!(is.na(doi) & is.na(pmid)))
+  bind_rows(ctgov_references, drks_references) #%>%
+  # filter(!(is.na(doi) & is.na(pmid))) %>%
+  # distinct()
 
 write_rds(registry_references, here::here("data", "processed", "registry-references.rds"))

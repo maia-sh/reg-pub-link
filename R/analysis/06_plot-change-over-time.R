@@ -35,28 +35,33 @@ links_by_year_reg <-
 
 # Prepare plot ------------------------------------------------------------
 library(showtext)
-font_add_google("Poppins", "Poppins")
+# font_add_google("Poppins", "Poppins")
+font_add_google("Roboto", "Roboto")
 font_add_google("Roboto Mono", "Roboto Mono")
 showtext_auto()
 
-theme_set(theme_light(base_size = 18, base_family = "Poppins"))
-theme_set(ggthemes::theme_fivethirtyeight(base_size = 18, base_family = "Poppins"))
+theme_set(theme_light(base_size = 18, base_family = "Roboto"))
+# theme_set(theme_light(base_size = 18, base_family = "Poppins"))
+# theme_set(ggthemes::theme_fivethirtyeight(base_size = 18, base_family = "Poppins"))
 
-# links_by_year_reg_separated <-
-links_by_year_reg %>%
-  ggplot(aes(x = completion_year, y = prop_link, color = registry, linetype = registry)) +
+plot_links_year_reg <-
+  links_by_year_reg %>%
+  rename(Registry = registry) %>%
+  ggplot(aes(x = completion_year, y = prop_link, color = Registry, linetype = Registry)) +
   facet_wrap(~link_type, ncol = 1) +
   geom_point() +
   geom_line() +
   scale_y_continuous(labels = scales::percent, limits = c(0, 1), expand = c(0.005, 0.005)) +
   scale_x_continuous(breaks = unique(links_by_year_reg$completion_year)) +
-  scale_color_grey() +
+  scale_color_manual(values = c("gray60", "gray10")) +
+  # scale_color_grey(start = 0.5, end = 0.8) +
   # scale_colour_viridis_d() +
   #TODO: show ticks for all years
   labs(
     # y = "Registration-Publication Linkage (%)",
     y = NULL,
-    x = "Trial Completion Year"
+    x = "Trial Completion Year",
+    title = "Percentage of linked registrations and publication by trial completion year"
   ) +
   guides(
     # colour = guide_legend(title = "Registration-Publication Link Type"),
@@ -66,15 +71,26 @@ links_by_year_reg %>%
   ) +
   theme(
     legend.position = "top",
-    legend.box = "vertical",
+    legend.justification = "left",
+    # legend.box.just = "left",
+    # legend.box = "vertical",
     legend.margin = margin(),
     axis.title = element_text(size = 16),
-    axis.text = element_text(family = "Roboto Mono", size = 12),
+    axis.text = element_text(family = "Roboto Mono",
+                             size = 8),
     strip.text = element_text(face = "bold", color = "black",
                               hjust = 0, size = 14,
                               margin = margin(0.1,0.5,0.1,0.5, "cm")),
-    strip.background = element_rect(fill = "gray80", linetype = "dotted")
+    strip.background = element_rect(fill = "gray85", linetype = "dotted"),
+    plot.title = element_text(size = 20)
   )
+
+ggsave(
+  here::here("docs", "figures", "plot-links-year-reg.png"),
+  plot_links_year_reg,
+  width = 25, height = 20, unit = "cm",
+  bg = "white"
+)
 
 # DEPRECATED --------------------------------------------------------------
 

@@ -334,3 +334,16 @@ chisq_link_by_reg_pdf <-
 # https://calerovaldez.com/post/using-the-apastats-package-to-write-reproducible-reports/
 # http://frederikaust.com/papaja_man/reporting.html
 # https://benwhalley.github.io/just-enough-r/apa-output.html
+
+# How many publications (including iv) are listed in registrations?
+
+reg_pub_max_drks <-
+  trials %>%
+  filter(registry == "DRKS") %>%
+  slice_max(n_reg_pub_any)
+
+reg_pub_max_ctgov <-
+  trials %>%
+  filter(registry == "ClinicalTrials.gov") %>%
+  slice_max(n_reg_pub_any)
+
