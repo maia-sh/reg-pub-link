@@ -1,0 +1,11 @@
+.Rproj.user
+.Rhistory
+.Rdata
+.httr-oauth
+.DS_Store
+
+# Track only Rmd and references (since other files generated)
+manuscript/*
+!manuscript/references.bib
+!manuscript/manuscript.Rmd
+!manuscript/appendix.Rmd
