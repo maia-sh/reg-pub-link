@@ -1,0 +1,12 @@
+# Trial and publication screening{#app-flow-trials}
+
+```{r flow-trials, fig.cap = "Trials and publications screening", out.width="50%", out.height="50%"}
+knitr::include_graphics(path(dir_figures, "flow-trials.pdf"))
+```
+
+# TRN in metadata given TRN in abstract or full-text {#app-si-if-abs-ft}
+
+```{r app-tbl-si-if-abs-ft}
+as_kable(tbl_si_if_abs_ft, format = 'pipe')
+```
+
