@@ -1,0 +1,351 @@
+---
+title             : "Results publications are inadequately linked to trial registrations: An automated pipeline and evaluation of German university medical centers"
+shorttitle        : "Registration-publication links in German clinical trials"
+author: 
+  - name          : "Maia Salholz-Hillel\\orcidlink{0000-0003-1934-9504}"
+    affiliation   : "1"
+    corresponding : yes
+    address       : "Anna-Louisa-Karsch-Str. 2, 10178, Berlin, Germany"
+    email         : "maia.salholz-hillel@charite.de"
+    role:         # CRediT roles (https://casrai.org/credit/)
+      - Conceptualization
+      - Methodology
+      - Software
+      - Investigation
+      - Data Curation
+      - Formal Analysis
+      - Visualization
+      - Validation
+      - Project Administration
+      - Writing - Original Draft Preparation
+      - Writing - Review & Editing
+  - name          : "Daniel Strech\\orcidlink{0000-0002-9153-079X}"
+    affiliation   : "1"
+    role:
+      - Funding Acquisition
+      - Resources
+      - Conceptualization
+      - Writing - Review & Editing
+      - Supervision
+  - name          : "Benjamin Gregory Carlisle\\orcidlink{0000-0001-8975-0649}"
+    affiliation   : "1"
+    role:
+      - Writing - Review & Editing
+      - Methodology
+      - Software
+      - Validation
+      - Supervision
+affiliation:
+  - id            : "1"
+    institution   : "QUEST Center for Responsible Research, Berlin Institute of Health (BIH) at Charité Universitätsmedizin Berlin"
+authornote: >
+abstract: |
+  **Objective** To evaluate links between registration and publication across clinical trials led by German university medical centers (UMCs) and registered in either ClinicalTrials.gov or the German Clinical Trials Registry (DRKS). Inadequate links make trial publications and registrations less findable and compromise evidence synthesis and health policy decision making. The World Health Organization (WHO) and others call for better adoption of this straightforward transparency practice. <!--#The World Health Organization (WHO), the International Committee of Medical Journal Editors (ICMJE), and the Consolidated Standards of Reporting Trials (CONSORT) call for transparent registration-publication linking to make clinical trial publications and registrations findable and increase the value of clinical research.-->
+  
+  **Design** Cross-sectional bibliographic study
+  
+  **Setting** German UMC clinical trials
+  
+  **Methods** We used automated strategies to download and extract data from trial registries, PubMed, and trial publications for a cohort of all registered, published clinical trials conducted across German UMCs and completed between 2009 and 2017. We implemented regular expressions to detect and classify publication identifiers (DOI and PMID) in registrations, and trial registrations numbers (TRNs) in publication metadata, abstract, and full-text.
+  
+  **Main outcome measures** The proportion of trial registrations that reference a known results publication. The proportion of results publications that report the known TRN in the metadata, abstract, and full-text.
+  
+  **Secondary analyses** We constructed exploratory logistic regression models to investigate the relationship between trial completion date, registry, and registration-publication linking.
+  
+  
+  **Conclusion** German UMCs have not comprehensively linked trial registrations and publications by both including a structured reference to the publication in the registration, and reporting TRNs in results publications. In addition to improved linking by trialists, changes in the PubMed TRN capturing process (such as automated strategies like those developed in this study) and automated indexing of publications in DRKS would make trial registrations and results more findable.
+  
+  
+  **Results** Only `r knitr::load_cache(label = "abstract-vars", object = "abs_n_trials_link_full")` of trials have a linked publication (DOI or PMID) in the registration as well as the TRN in the publication full-text, abstract, and metadata, and only `r knitr::load_cache(label = "abstract-vars", object = "abs_n_trials_link_ft_abs")` of trials met the CONSORT and ICMJE guidelines to include TRNs in both the full-text and the abstract. `r knitr::load_cache(label = "abstract-vars", object = "abs_n_trials_link_none")` of trials had no links. The most common link was TRN reported in the full-text (`r knitr::load_cache(label = "abstract-vars", object = "abs_n_trials_link_ft")`). ClinicalTrials.gov trials were overall better linked than DRKS trials, and this difference appears to be driven by PubMed and registry infrastructure, rather than by trialists. Of trials reporting a TRN in the abstract, trials in ClinicalTrials.gov were more likely than trials in DRKS to have the TRN captured in the PubMed metadata. Most (`r knitr::load_cache(label = "abstract-vars", object = "abs_n_trials_link_reg_ctgov_auto")`) ClinicalTrials.gov registrations with a publication link were automatically indexed from PubMed metadata, which is not possible in DRKS.
+  **Open Data and Code** All code and the final analysis data for this study are available at https://github.com/maia-sh/reg-pub-link. Raw data is available at https://github.com/maia-sh/intovalue-data.
+keywords          : "clinical trials, registration, reporting, meta-research, research transparency"
+wordcount         : "3604"
+bibliography      : ["references.bib", "r-references.bib"]
+appendix          : "appendix.Rmd"
+numbersections    : yes
+floatsintext      : no
+figurelist        : no
+tablelist         : no
+footnotelist      : no
+linenumbers       : yes
+mask              : no
+draft             : no
+lang              : "en-US"
+documentclass     : "apa6"
+classoption       : "man"
+output            : papaja::apa6_pdf
+header-includes   :
+  - \usepackage{orcidlink}
+always_allow_html: true
+nocite: |
+  @taylorfrancisgroup2020, @crossref2020c, @nationallibraryofmedicine2017c
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r rmd-setup, include = FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE, echo = FALSE)
+```
+
+```{r packages}
+library(dplyr)
+library(tidyr)
+library(stringr)
+library(glue)
+library(purrr)
+library(here)
+library(readr)
+library(fs)
+
+library(ggplot2)
+library(showtext)
+
+library(DiagrammeR)
+library(gtsummary)
+library(gt)
+library(papaja)
+library(knitr)
+library(kableExtra)
+```
+
+```{r r-citations}
+r_citation <- cite_r()                              # base R
+r_refs("r-references.bib", append = FALSE)          # references to loaded packages
+create_bib(
+  c("loggit", "rentrez", "roadoi"),
+  "r-references.bib", append = TRUE) # references to additional packages
+```
+
+```{r figures-setup}
+# figures (plots and tables)
+
+# Prepare directory
+dir_figures <- dir_create(here("manuscript", "figures"))
+
+# theme_gtsummary_compact()
+
+# Set themes
+lightgray <- "gray75" #"coral3" # #"gray60"
+darkgray <- "gray35" #"gray10"
+registry_colors <- c("DRKS" = darkgray, "ClinicalTrials.gov" = lightgray)
+# registry_linetype <- c("DRKS" = "longdash", "ClinicalTrials.gov" = "solid")
+
+# font_add_google("Poppins", "Poppins")
+font_add_google("Roboto", "Roboto")
+font_add_google("Roboto Mono", "Roboto Mono")
+showtext_auto()
+
+theme_set(theme_light(
+  # base_size = 18,
+  base_family = "Roboto"
+))
+
+theme_update(
+  text = element_text(family = "Roboto"),
+  # axis.title = element_text(size = 16),
+  axis.text = element_text(family = "Roboto Mono",
+                           size = 8),
+)
+```
+
+```{r raw-data, cache = TRUE}
+# Dataset created in https://github.com/maia-sh/intovalue-data
+
+# TODO: create a github release and change link to version; for now using commit link: https://docs.github.com/en/github/administering-a-repository/releasing-projects-on-github/managing-releases-in-a-repository
+# "https://github.com/maia-sh/intovalue-data/raw/main/data/processed/trials.csv?raw=true"
+
+dir <- dir_create(here("data"))
+
+# Trials dataset
+trials_raw <- 
+  read_csv("https://github.com/maia-sh/intovalue-data/blob/b7909d4059e1435695e6e0be56d4da468b1f5a96/data/processed/trials.csv?raw=true") %>% 
+  write_csv(fs::path(dir, "trials-raw.csv"))
+
+# PubMed metadata
+pubmed_si <- read_rds("https://github.com/maia-sh/intovalue-data/blob/a95fd7e93f1838a595e747f7f756a13a49fb66bd/data/processed/pubmed/pubmed-si.rds?raw=true") %>% 
+  write_rds(fs::path(dir, "pubmed-si.rds"))
+
+# Query dates
+download.file(
+  "https://github.com/maia-sh/intovalue-data/raw/6b97fb62804aae1bab6c85bd2817baa027207bab/queries.log",
+  fs::path(dir, "queries.log")
+)
+
+query_logs <- loggit::read_logs(fs::path(dir, "queries.log"))
+
+# Extract most recent query dates
+get_latest_query <- function(query, logs) {
+  logs %>%
+    filter(log_msg == query) %>%
+    arrange(desc(timestamp)) %>%
+    slice_head(n = 1) %>%
+    pull(timestamp) %>%
+    as.Date.character() %>%
+    format("%d %B %Y")
+}
+
+pubmed_query_date <- get_latest_query("PubMed", query_logs)
+aact_query_date <- get_latest_query("AACT", query_logs)
+drks_query_date <- get_latest_query("DRKS", query_logs)
+```
+
+```{r analysis, cache = TRUE}
+dir_ls(here("analysis")) %>%
+  walk(source)
+```
+
+```{r abstract-vars, cache = TRUE, dependson = "analysis"}
+abs_n_trials_link_full <- 
+  report_trials(n_trials_link_full, pattern = "{p}% ({n}/{N})")
+abs_n_trials_link_ft_abs <- 
+  report_trials(n_trials_link_ft_abs, pattern = "{p}% ({n})")
+abs_n_trials_link_none <- 
+  report_trials(n_trials_link_none, pattern = "{p}% ({n})")
+abs_n_trials_link_ft <- 
+  inline_text(tbl_link_by_reg, has_iv_trn_ft, stat_0, pattern = "{p}%, {n}")
+abs_n_trials_link_reg_ctgov_auto <- 
+  report_trials(n_trials_link_reg_ctgov_auto, n_trials_link_reg_ctgov, pattern = "{p}%, {n}/{N}")
+```
+
+# Introduction
+
+Linking trial registrations and results publications makes each more findable and improves research transparency at minimal effort to researchers. Threaded evidence also empowers readers to cross-check sources, e.g., for potential outcome switching [@altman2014t]. If trial results cannot be found or linked to their registration, systematic reviewers may miss relevant data and draw invalid conclusions [@miron2020sd]. Health policy decisions and clinical guidelines rely on such evidence synthesis, and incomplete evidence can misinform subsequent clinical trials, drive the misallocation of healthcare resources, and risk patient wellbeing [@chan2014tl; @councilforinternationalorganizationsofmedicalsciences2016].
+
+To inform clinical decision making with comprehensive trial evidence, legal regulations and ethical guidelines advocate results transparency [@worldmedicalassociation2013; @worldhealthorganization2017; @altman2014gfrhraum; @borysowski2020bjcp; @chalmers2013b]. Trial results should be bidirectionally linked, meaning both a reference to publications in the registration, and trial registration numbers (TRNs) in the full-text, abstract, and metadata of publications. The Consolidated Standards of Reporting Trials (CONSORT) as well as the International Committee of Medical Journal Editors (ICMJE) ask trialists to report the "trial registration number and name of the trial register" in both the full-text and abstract of trial results publications [@internationalcommitteeofmedicaljournaleditorsicmje2019; @hopewell2008pm]. Reporting a TRN solely in the full-text does not suffice, since readers may not have access to the full-text or may judge a trial on the abstract alone [@hopewell2008tl]. Abstracts may also be published independently of a full-text publication, such as for conferences [@hopewell2008pm].
+
+The inclusion of TRNs in publication and bibliographic metadata especially enhances machine readability and discoverability. Trial results can then be found more efficiently using TRNs to search publication databases [@huser2013po]. Publications can then also be automatically linked within trial registrations, as is currently done with ClinicalTrials.gov using TRN metadata from PubMed [@nationallibraryofmedicine2017c]. Such references to results publications within a registration allow readers to quickly identify and navigate to the trial findings. Results references may also be entered manually in selected registries, with varying degrees of structure [@miron2020sd; @moja2009t; @venugopal2021po]. ClinicalTrials.gov, for example, provides fields for DOI and PubMed identifier (PMID), whereas the German Clinical Trials Registry (DRKS) offers an unstructured free-text field. While registry readers may be able to find the referenced publication from the free-text, unique identifiers provide a more robust and structured link that allows for automated retrieval [@huser2013po].
+
+Trial evidence appears to be insufficiently linked in both registrations and publications. Previous studies on trial registrations found links to results publications in as few as 13% to as many as 60% of trials [@bashir2017sr; @huser2013po; @wetering2012po]. TRN reporting in either the metadata, abstract, or full-text of trial publications has been found to be as low at 8% and as high as 97%, varying widely depending on how the trial population was defined [@bashir2017sr; @carlisle2020m; @aldurra2020b; @huser2013jamia; @wetering2012po]. The sampling strategies used in previous studies limit our ability to draw conclusions about registration-publication linking. Publication-based cohorts relied on inaccurate PubMed clinical trial filters [@glanville2020jmla] and included publications beyond trial results, as well as trials with unknown registration rates, as not all trials are registered, [@trinquart2018bm; @gopal2018t; @denneny2019bo]. Registration-based cohorts included trials that may not have an associated publication and thus should not be expected to have a publication link [@chen2016b; @dwan2013po; @ross2012b]. Furthermore, these studies of publication links in registrations have primarily focused on ClinicalTrials.gov, and we are not aware of previous studies that investigate publication links in DRKS. In this study, we limit our sample to registered clinical trials with published results which can be expected to link the registration and publication, and which allows us to draw conclusions about the prevalence of this responsible research practice.
+
+## Objectives
+
+In this exploratory study, we evaluate the links between registrations and results publications in a cross-section of published clinical trials led by German university medical centers (UMCs) and registered in either ClinicalTrials.gov or DRKS with completion dates between 2009 and 2017. We also looked at the relationship between different link types, as well as registry and change in practices over time.<!--# By relying on a cohort of known trial registrations and publications, we are able to draw conclusions about registration-publication links, both with regards to the rate of structured links to known results publications in its registration, and the rate of reporting a trial's known TRN in its publication full-text, abstract, and metadata.--> We developed an automated and scalable approach for data collection and extraction using regular expressions to detect and classify publication identifiers and TRNs, which may be applied to other trial cohorts. <!--# We did not pre-specify the analyses. We also explored the reporting of additional TRNs, beyond the known associated TRN, in publications, including reported cross-registrations, meaning more than one TRN in more than one registry associated with a single publication. We also looked at reporting PMC-version full-text. -->
+
+# Methods
+
+## Automated pipeline for data collection
+
+We used two cohorts of registered clinical trials and associated results previously developed by @wieschowski2019joce and @riedel2021c and referred to as the "IntoValue" dataset [@riedel2021a]. The dataset consists of clinical trials registered on ClinicalTrials.gov or DRKS, conducted at a German UMC, and completed between 2009 and 2017. Corresponding results publications were found via manual searches.
+
+We downloaded data from both registries on `r ifelse(aact_query_date == drks_query_date, aact_query_date, stop())`. We queried ClinicalTrials.gov using the Clinical Trials Transformation Initiative (CTTI) Aggregate Content of ClinicalTrials.gov (AACT) via its PostgreSQL database API [@clinicaltrialstransformationinitiativectti]. As DRKS does not provide an API, we built a webscraper to capture the necessary fields [@federalinstitutefurdrugsandmedicaldevicesbfarm].
+
+We queried the PubMed Entrez Programming Utilities (E-utilities) API on `r pubmed_query_date` for all trial results PMIDs<!--#, and excluded PMIDs that did not resolve--> [@usnationallibraryofmedicinetigtand; @R-rentrez]. From the PubMed XML, we extracted bibliometric information, including the publication abstract and secondary identifier (or databank) metadata.<!--# , as well as MeSH terms, keywords, author details, and summary metadata -->
+
+We used DOIs and PMIDs to search for full-text publications as PDFs, using a combination of automated and manual strategies, including contacting the corresponding author as a final step <!--# add that this was just for a few studies? -->[@ourresearch; @R-roadoi]. We then used the GROBID machine learning library for technical and scientific publications (v0.6.1) via Python to parse the PDFs into machine-readable XMLs [@2008; @lopez2021]. In order to isolate the main body from the publication abstract for our analysis, we extracted the `<body>` sections of the papers.
+
+### Inclusion and exclusion criteria
+
+After updating registry data, we reapplied the IntoValue exclusion criteria: completion date before 2009 or after 2017, non-interventional, incomplete based on study status, non-German-UMC lead. See @riedel2021c for further details on these criteria. We limited our sample to trials with results with a PMID and full-text publication.
+
+## Detection and classification of publication identifiers in registrations
+
+As each registry formats references to publications differently, we developed parallel approaches to extract publication identifiers for each. For ClinicalTrials.gov, we retrieved the reference type, citation, and PMID fields from AACT. We then used a regular expression (regex) to extract any DOIs from the citations. For DRKS, we scraped the reference type, citation, and URL, when available. We used regexes to extract any DOIs and PMIDs from the citation and URL. In the rare cases when conflicting DOIs or PMIDs were found in the citation vs. the URL, we manually reviewed to determine which was valid; if both were valid, we preferred the identifier provided in the citation. In addition, we determined whether a reference was manually or automatically indexed in the registry. DRKS allows only manually added references; for ClinicalTrials.gov, references of type "derived" were marked as automatically indexed. We then used DOIs and PMIDs to match the referenced publications to those in our trial dataset. We did not attempt to match publications without identifiers (i.e., publication title only).
+
+## Detection and classification of trial registration numbers in publications
+
+We developed <!--# and evaluated [or more methods details] -->regexes for the TRN patterns for all PubMed-indexed and ICTRP-network registries (available at <https://github.com/maia-sh/ctregistries/blob/master/inst/extdata/registries.csv>) and used these to detect and classify TRNs in the PubMed secondary identifier metadata, abstract, and full-text. To gauge the sensitivity and specificity of these regexes, we visually inspected all PubMed secondary identifier metadata<!--# for true positives and true negatives-->. For each source, we first extracted all unique TRN patterns within a source. Our regex allowed for minor formatting errors in the TRN patterns (such as additional punctuation). We then cleaned the TRN patterns to remove these formatting errors, and then deduplicated the corrected TRNs to exclude duplicates within a source uncovered through the cleaning process. We also merged our sources to produce a list of unique TRNs by publication along with the source(s) in which each was reported.
+
+The output of TRN extraction, cleaning, and deduplication included TRNs beyond those of the known registrations. These additional TRNs could be cross-registrations of the same trial or provided as background or discussion. For this study, we were interested in whether the known registrations were reported in the publication.
+
+## Analysis
+
+We generated descriptive statistics on trial and publication characteristics, overall and by registry. We calculated the number and proportion of trials linked via the publication (full-text, abstract, metadata) and the registration.<!--#with each type of link and different combination of links.--> To explore change over time, the relationships between types of links, and differences between registries, we ran logistic regressions for each link type, with all other link types as well as registry and completion year as explanatory variables. Regressions were performed as exploratory analyses, and all variables were included in each regression model. There was no model selection or fitting, or correction for multiple testing. In particular, since PubMed metadata may be generated from the publication abstract or full-text, we examined the relationship between TRN reporting in either the abstract or full-text, and TRN inclusion in the metadata. Additionally, since ClinicalTrials.gov registrations automatically reference publications with the TRN in the PubMed metadata (whereas DRKS does not), we examined the proportion of automatically vs. manually linked publications in ClinicalTrials.gov. To explore registry differences for only manually linked publications, we excluded automated links and calculated the number and proportion of trials with the publication linked in the registration. <!--#add automatic links to regression for pub in registry? in which case would need to recode NA as FALSE. To explore whether automated links explains registry differences in publication links in the registry...-->
+
+## Software, code, and data
+
+Data collection, preparation, and analysis was performed in `r r_citation`<!--#aside from parsing PDFs to XML in Python-->.<!--#Additional packages and libraries are specified in the methods.--> All code, the final analysis data, and a list of all packages used for this study are available at <https://github.com/maia-sh/reg-pub-link>. Raw data (with the exception of the full-text of publications) is available at <https://github.com/maia-sh/intovalue-data>.
+
+# Results
+
+The IntoValue dataset includes all trials led by a German UMC that were registered on ClinicalTrials.gov or DRKS and completed between 2009 and 2017 (n = `r n_trials_iv`). After applying our exclusion criteria, our sample included `r n_trials_ft` trials with `r n_pubs_unique` unique results publications indexed in PubMed and available as full-text, as some publications include results from more than one trial. Appendix \@ref(app-flow-trials) provides a flow diagram of the trial and publication screening. Table \@ref(tab:tbl-trials) shows summary descriptive details of the trials with results publications by registry.
+
+<!-- (ref:tbl-trials-caption) **Characteristics of German UMC-led trials with published results** A trial was considered randomized if allocation included randomization. A trial was considered prospectively registered if registered in the same or previous months to start date. Summary results were taken from a structured data field in ClinicalTrials.gov, and determined based on manual inspection for terms such as *Ergebnisbericht* or *Abschlussbericht* in DRKS. *Top* journals refer to the journals with the greatest number of trial publications in our sample. -->
+
+```{r tbl-trials, results = "asis"}
+as_kable(tbl_trials, format = 'pipe')
+```
+
+Per our inclusion criteria all trials in our sample (n = `r n_trials_ft`) were registered and had a publication, however only `r report_trials(n_trials_link_full)` trials had the most comprehensive registration-publication linking, meaning the publication linked in the registration as well as the TRN in the publication full-text, abstract, and PubMed metadata. Disregarding metadata, which is largely beyond trialists' control, an additional `r n_trials_link_ft_abs_reg - n_trials_link_full` trials had comprehensive linking for a total of `r report_trials(n_trials_link_ft_abs_reg)`. An additional `r report_trials(n_trials_link_ft_abs - n_trials_link_ft_abs_reg)` met the CONSORT and ICMJE guidelines to include TRNs in both the full-text and the abstract. In contrast, we found `r report_trials(n_trials_link_none)` trials with no links in either the registration or the publication. The most common linking practice was reporting of the TRN in the full-text only, accounting for `r report_trials(n_trials_link_ft_only)` trials. The inclusion of the various link types ranged from `r inline_text(tbl_link_by_reg, has_iv_trn_abstract, stat_0)` in abstracts to `r inline_text(tbl_link_by_reg, has_iv_trn_ft, stat_0)` in full-text. Table \@ref(tab:tbl-link-by-reg) shows registration-publication links overall and by registry. <!--# point estimates in table should have CI, right? -->Figure \@ref(fig:plot-upset-links-reg-pub-registries) shows the intersection of registration-publication links across the various types for ClinicalTrial.gov and DRKS trials.<!--#shows the number of trials with each link type and combination of link types, overall and by registry.-->
+
+```{r tbl-link-by-reg}
+as_kable(tbl_link_by_reg, format = "pipe")
+```
+
+```{r plot-upset-links-reg-pub-registries, fig.cap = "Trials with all combinations of links between registration and publication in ClinicalTrials.gov and DRKS", out.width="80%"}
+knitr::include_graphics(path(dir_figures, "plot-upset-link-type.pdf"))
+```
+
+```{r tbl-trials-regression}
+# options(knitr.kable.NA = "**")
+as_kable(tbl_trials_regression, format = "pipe") #%>% 
+  # kable_styling(latex_options = "scale_down")
+  # landscape()
+```
+
+Table \@ref(tab:tbl-trials-regression) shows the crude univariate and adjusted multivariate odds ratios (ORs) for each type of publication-registration link across all explanatory variables. Completion year did not have a strong relationship with linking practices, although trials completed more recently were more likely to report the TRN in the abstract (`r inline_text(aor_abs, variable = "completion_year", pattern = "aOR {estimate} [{ci}]")`) and full-text (`r inline_text(aor_ft, variable = "completion_year", pattern = "aOR {estimate} [{ci}]")`). Figure \@ref(fig:plot-link-year) shows the rate of registration-publication links over time for ClinicalTrials.gov and DRKS.
+
+```{r plot-link-year, fig.cap = "Percentage of trials with linked registrations and publications by trial completion year in ClinicalTrials.gov and DRKS. Completion year from registry.", out.width = "95%"}
+knitr::include_graphics(path(dir_figures, "plot-link-year.pdf"))
+```
+
+Across the adjusted multivariate models,<!--#in the adjusted analysis,--> trials with one link type were generally more likely to have another type of link. <!--#However, trials with a TRN in the full-text were significantly less likely to have the publication linked in the registration (`r inline_text(aor_reg, variable = "has_iv_trn_ft", pattern = "aOR {estimate} [{ci}]")` ; `r inline_text(aor_ft, variable = "has_reg_pub_link", pattern = "aOR {estimate} [{ci}]")`).--> In particular, TRNs were more likely to appear in the PubMed metadata if included in the abstract (`r inline_text(aor_si, variable = "has_iv_trn_abstract", pattern = "aOR {estimate} [{ci}]")`), but not more likely if included in the full-text (`r inline_text(aor_si, variable = "has_iv_trn_ft", pattern = "aOR {estimate} [{ci}]")`). DRKS TRNs were less likely than ClinicalTrials.gov TRNs to appear in the PubMed metadata (`r inline_text(aor_si, variable = "registry", level = "DRKS", pattern = "aOR {estimate} [{ci}]")`). Similarly, for trials with a TRN in either abstract or full-text, ClinicalTrials.gov TRNs appeared at a higher rate than DRKS TRNs in the metadata (`r inline_text(tbl_si_abs_or_ft, "has_iv_trn_secondary_id", column = "stat_1", pattern = "{p}%")` vs. `r inline_text(tbl_si_abs_or_ft, "has_iv_trn_secondary_id", column = "stat_2", pattern = "{p}%")`). Appendix \@ref(app-si-if-abs-ft) shows the number and proportion of trials with a TRN in the metadata given a TRN in the abstract, full-text, or either, both overall and by registry.
+
+Trials registered in DRKS were also less likely than trials registered in ClinicalTrials.gov to reference the primary outcome publication in the registration (`r inline_text(aor_reg, variable = "registry", level = "DRKS", pattern = "aOR {estimate} [{ci}]")`). <!--#Inclusion of the TRN in the abstract was significantly less likely in DRKS than ClinicalTrials.gov trials in the crude data (`r inline_text(cor_abs, variable = "registry", level = "DRKS", pattern = "cOR {estimate} [{ci}]")`), whereas more likely in the adjusted analysis (`r inline_text(aor_abs, variable = "registry", level = "DRKS", pattern = "aOR {estimate} [{ci}]")`).--> Most (`r report_trials(n_trials_link_reg_ctgov_auto, n_trials_link_reg_ctgov, pattern = "{p}%, {n}/{N}")`) ClinicalTrials.gov trials that reference the publication in the registration had the link automatically derived from the PubMed metadata, which is not currently possible for DRKS. Excluding trials with automatically linked publications, ClinicalTrials.gov and DRKS had similar rates of referencing publication in the registration (`r inline_text(tbl_reg_pub_link_manual, has_reg_pub_link, column = "stat_1", pattern = "{p}%, {n}/{N}")` vs. `r inline_text(tbl_reg_pub_link_manual, has_reg_pub_link, column = "stat_2", pattern = "{p}%, {n}/{N}")`). Trials also had additional publications linked in the registrations, up to `r reg_pub_max_ctgov$n_reg_pub_any` in ClinicalTrials.gov (`r reg_pub_max_ctgov$id`) and `r reg_pub_max_drks$n_reg_pub_any` in DRKS (`r reg_pub_max_drks$id`).
+
+In our manual evaluation of the TRN regular expressions for classifying PubMed secondary identifiers (n = `r nrow(pubmed_si)`), we found that most ids were clear true positive TRNs (n = `r si_tp`). A handful (n = `r si_figshare`) were clear true negative other ids, meaning ids from non-registry databanks, such as molecular sequences and open data repositories (i.e., figshare, Dryad) [@nationallibraryofmedicine2018]. We also found `r si_drks_misformatted` ids which we manually classified as true negative non-TRNs; however, using additional PubMed data, we determined these were severely misformatted DRKS ids (i.e., missing the preceding letters "DRKS" and just a string of numbers such as "00000711"). Our regexes correctly classified all well-formatted TRNs and non-TRNs, resulting in a sensitivity and specificity of `r ifelse(si_sens == si_spec, style_percent(si_sens), stop())`%. If we had instead categorized the `r si_drks_misformatted` severely misformatted DRKS ids as true positives, our regexes would have sensitivity of `r style_percent(si_sens_alt, digits = 1)`% and a specificity of `r style_percent(si_spec_alt)`%.
+
+# Discussion
+
+Linking of trial registrations and results publications plays an important role in research transparency and facilitates comprehensive evidence synthesis and informed health policy decision making.<!--# and can substantially increase the value of research. --> Poor linking poses a barrier to identifying trial publications via automated approaches and instead requires researchers to perform intensive manual searches to attempt to match publications to trials [@wieschowski2019joce; @chen2016b; @bashir2017sr]. This responsible research practice comes at minimal costs to researchers, from seconds for pasting TRNs in papers, to minutes for adding a publication link to the registration.
+
+Our study shows that German UMCs can improve in both TRN reporting in publications and references to publications in the registration. In our sample (n = `r n_trials_ft`), `r report_trials(n_trials_link_none, pattern = "{p}% ({n})")` of trials had no links between registration and publication and only `r report_trials(n_trials_link_full, pattern = "{p}% ({n})")` of trials had the most comprehensive registration-publication links. Furthermore, only `r report_trials(n_trials_link_ft_abs, pattern = "{p}% ({n})")` of trials in our sample fully met the CONSORT and ICMJE guidelines to include TRNs in both the full-text and the abstract. Linking practices showed at best minimal improvement over time. The upward trend in reporting in full-text and abstracts suggests this practice is gaining traction, however more slowly than advisable per CONSORT and ICMJE guidelines.<!--# shorten--> Trials registered in ClinicalTrials.gov were overall better linked than trials registered in DRKS.<!--# We found substantial differences between registries with ClinicalTrials.gov better linked than DRKS. --> These differences are in part beyond trialists' control and reliant on bibliometric databases (i.e., PubMed) and registries, namely (1) generating PubMed metadata from TRNs in the abstract or full-text, and (2) automated indexing of publications in the registry.
+
+Our findings suggest that PubMed's current approach to capturing TRNs in metadata misses TRNs from the full-text as well as DRKS trials. TRNs in PubMed metadata may be either provided by publishers or manually assigned by National Library of Medicine (NLM) staff who copy-and-paste TRNs found in the abstract and full-text (personal communication via NLM Helpdesk Ticket CAS-552810-T3H7V5). As such, we expect a TRN from any registry to be included in the metadata, if the trialist includes it in either the abstract or the full-text. However, we found that while trials with a TRN in the abstract were indeed more likely to include the TRN in the metadata (`r inline_text(aor_si, variable = "has_iv_trn_abstract", pattern = "aOR {estimate} [{ci}]")`), TRNs in the full-text were not more likely to appear in the metadata (`r inline_text(aor_si, variable = "has_iv_trn_ft", pattern = "aOR {estimate} [{ci}]")`). Furthermore, our data suggest that NLM staff are better at extracting ClinicalTrials.gov than DRKS TRNs (`r inline_text(aor_si, variable = "registry", level = "DRKS", pattern = "aOR {estimate} [{ci}]")`).<!--# As such, it appears that PubMed metadata misses TRNs from the full-text as well as DRKS trials.-->
+
+Automated indexing of publications in ClinicalTrials.gov accounts for most (`r report_trials(n_trials_link_reg_ctgov_auto, n_trials_link_reg_ctgov, pattern = "{p}%, {n}/{N}")`) publication references in the registry and drives the almost three-fold discrepancy with DRKS (`r inline_text(tbl_link_by_reg, has_reg_pub_link, "ClinicalTrials.gov", pattern = "{p}%, {n}/{N}")` vs. `r inline_text(tbl_link_by_reg, has_reg_pub_link, "DRKS", pattern = "{p}%, {n}/{N}")`).<!--# Excluding trials with automatically linked publications, ClinicalTrials.gov and DRKS had similar rates of referencing publication in the registration (`r inline_text(tbl_reg_pub_link_manual, has_reg_pub_link, column = "stat_1", pattern = "{p}%, {n}/{N}")`)--> Currently, DRKS allows for only manual submission of references by trialists and does not index publications.<!--# add?--> Furthermore, registrations may refer to additional publications beyond results (e.g., up to 72 publications for one ClinicalTrials.gov registration in our sample), so registry metadata should encode publication type to support quick identification of results. While such publication type metadata is currently available in both registries, it is not systematically used, and many publications are categorized generically as a "paper" (DRKS) or "reference" (ClinicalTrials.gov).
+
+Accurate TRN formatting in publication data is critical for machine-readability, which in turn enables automated indexing of publications in the registration. While our regular expressions allow for and correct minor formatting errors (such as erroneous punctuation), egregious misformatting may make the TRN undetectable. For example, in our visual inspection of the PubMed metadata TRNs, we found `r si_drks_misformatted` severely misformatted DRKS TRNS (i.e., numbers only with no preceding letters), which we could only identify as DRKS TRNs using additional metadata and which prevented the regex from classifying them as TRNs based on the pattern alone. <!--#Classifying these cases as true negative, our regexes correctly classified all TRNs and non-TRNs in our sample's the PubMed metadata secondary identifier field (sensitivity and specificity of 100%). remove since not about trn formatting alone? Furthermore, ClinicalTrials.gov presumably relies not only on the reported TRN but also on the registry, and as such failed to index a publication (PMID: 26417987) despite the TRN (NCT01614301) appearing in the PubMed metadata, as the associated databank was incorrect (i.e., GENBANK). -->
+
+## Strengths and Limitations
+
+This approach has numerous strengths. In contrast with previous studies relying on PubMed queries to identify potential (randomized) clinical trial results publications, we relied on a sample of bona fide results publications from registered trials, allowing us to evaluate the rate of structured links to known results publications in its registration, and the rate of reporting a trial's known TRN in its publication full-text, abstract, and metadata. Furthermore, we used an automated approach including regular expressions with high sensitivity and specificity to identify and classify publication identifiers and TRNs which allowed for a larger sample size that manual data extraction would have permitted. This automated strategy is scalable and can be applied to other trial sets.
+
+The approach also faces limitations. Our input IntoValue dataset comprised German UMC-led trials in ClinicalTrials.gov and DRKS and may not reflect practices across other registries and/or countries. Future projects should look at multinational samples of bona fide results publications. Furthermore, we relied on IntoValue for trial deduplication and bona fide results publications. The dataset may have had a small number of unaccounted for cross-registrations (e.g., DRKS00004156 and NCT00215683) and publications that are not trial results (e.g., systematic reviews, conference abstract books, etc.<!--# DRKS00009565 associated publication is 10.1097/aap.0000000000000573, a systematic review, with many reported TRNs-->). Finally, this automated approach faces limitations of the software on which it is built. While PubMed updated their website in 2020, their API reflects the previous backend and has subtle differences to the web version (personal communication via NLM Helpdesk Ticket CAS-575119-Y6D6Y4). While GROBID algorithms are trained on academic papers and have been used in large-scale bibliometric projects [e.g., @wang2020ac], parsing PDFs to XMLs may introduce some errors.<!--#Finally, the approach relies on quality input text data, and since journal articles are still most commonly distributed as PDFs, parsing errors may reduce text quality. We minimized this risk by relying on GROBID to parse full-text PDFs into XML with the body separated out from the abstract, header, and back. While GROBID algorithms are trained on academic papers and have been used in large-scale bibliometric projects [e.g., @wang2020ac], it does not perfectly classify the full-text main body. As such, TRNs appearing in the main body main be mistakenly excluded and TRNs appearing in the header or back material may be mistakenly included.-->
+
+## Implications for policy and practice
+
+This study reveals shortcomings in the linking of German UMC-led trials registrations and results publications and highlights several promising avenues forward. In contrast with other responsible clinical research practices (such as data protection or trial registration itself), registration-publication linking is straightforward and can be improved with action across stakeholders. <!--#Drawing from the study findings and additional context, -->Table \@ref(fig:tbl-stakeholders) outlines recommendations for stakeholders across clinical research.
+
+```{r tbl-stakeholders}
+# https://www.anthonyschmidt.co/post/2020-06-03-making-apa-tables-with-gt/
+knitr::include_graphics(path(dir_figures, "tbl-stakeholders.pdf"))
+```
+
+With improved TRN inclusion in bibliographic metadata and increased automatic indexing of publications based on this metadata, full linking could be achieved with negligible work by researchers: simply pasting the TRN into the publication abstract and full-text. In our sample alone, an additional `r report_trials(n_trials_link_ft_or_abs_no_si, n_trials_link_ft_or_abs, pattern = "{p}% ({n}/{N})")` of trials with TRN in abstract or full-text could have the TRN included in PubMed's metadata, and an additional `r report_trials(n_trials_drks_link_si_not_reg, n_trials_drks_link_si, pattern = "{p}% ({n}/{N})")` of DRKS trials with TRN in the PubMed metadata could be automatically indexed in the registration. By adopting the recommended actions, stakeholders can improve trial registration-publication links and foster more comprehensive evidence synthesis and well-informed clinical guidelines and health policy decisions.
+
+# Acknowledgments
+
+We would like to thank Kerstin Rubarth from the Charité Institut für Biometrie und Klinische Epidemiologie for her consultation on the statistical analysis, and Nicholas Devito for earlier versions of the trial registration number regular expressions.
+
+# Funding
+
+This work was funded under a grant from the Federal Ministry of Education and Research of Germany (Bundesministerium für Bildung und Forschung - BMBF) [01PW18012]. The funder had no involvement in the study design, data collection, analysis, or interpretation, writing of the manuscript, or the decision to submit for publication.
+
+# Author disclosures
+
+MSH, BGC, and DS declare they have no direct conflict of interest related to this work. MSH is employed as a researcher under the project funding and additional grants from the German Bundesministerium für Bildung und Forschung (BMBF). DS is a member of the Sanofi Advisory Bioethics Committee and receives an honorarium for his contribution to meetings. <!--# BGC? -->
+
+\newpage
+
+# References
+
+```{=tex}
+\begingroup
+\setlength{\parindent}{-0.5in}
+\setlength{\leftskip}{0.5in}
+```
+::: {#refs custom-style="Bibliography"}
+:::
+
+\newpage
+

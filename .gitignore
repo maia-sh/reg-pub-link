@@ -4,8 +4,15 @@
 .httr-oauth
 .DS_Store
 
+# Data can be read in/generated so does not need to be tracked
+data/*
+
+# Docs contains manuscript as well as submission pdfs and presentations
+docs/*
+
 # Track only Rmd and references (since other files generated)
-manuscript/*
-!manuscript/references.bib
-!manuscript/manuscript.Rmd
-!manuscript/appendix.Rmd
+!docs/manuscript
+docs/manuscript/*
+!docs/manuscript/references.bib
+!docs/manuscript/manuscript.Rmd
+!docs/manuscript/appendix.Rmd
