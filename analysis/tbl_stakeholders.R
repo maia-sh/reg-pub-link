@@ -11,7 +11,7 @@ example_researchers <- "—"
 action_registries <- "
 - Provide guidance on TRN formatting and reminder to include TRN in publications, and publications in registration
 - Link publications automatically using TRNs in bibliographic database metadata
-- Provide metadata on linked publication type (i.e., result, background)
+- Provide metadata on linked publication type (i.e., result, background, protocol)
 "
 
 example_registries <- "ClinicalTrials.gov uses PubMed TRN metadata to automatically link publications in the registration (National Library of Medicine, 2017). Our study shows this automated publication linking is responsible for the majority of linked publications in ClinicalTrials.gov and implies similar potential for DRKS."
