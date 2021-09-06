@@ -158,6 +158,34 @@ tbl_link_by_reg <-
   # add_overall(col_label = "**Overall**\nN = {N}") %>%
   modify_footnote(everything() ~ NA)
 
+# Prevalence of link types, overall and by registry
+# Trials published as of 2014 to account for MEDLINE incorporation of DRKS
+# https://www.nlm.nih.gov/bsd/medline_databank_source.html
+tbl_link_by_reg_2014 <-
+  trials %>%
+  filter(publication_date > as.Date("2013-12-31")) %>%
+  select(
+    registry,
+    has_iv_trn_ft,
+    has_iv_trn_abstract,
+    has_iv_trn_secondary_id,
+    has_reg_pub_link
+  ) %>%
+  gtsummary::tbl_summary(
+    by = registry,
+    label = list(
+      has_iv_trn_ft ~ "TRN in full-text",
+      has_iv_trn_abstract ~ "TRN in abstract",
+      has_iv_trn_secondary_id ~ "TRN in PubMed metadata",
+      has_reg_pub_link ~ "Publication in registration"
+    )
+  ) %>%
+  add_overall() %>%
+  modify_header(label = "") %>%
+  modify_caption("Registration-publication links overall and by registry for trials published as of 2014") %>%
+  bold_labels() %>%
+  modify_footnote(everything() ~ NA)
+
 # Manually-linked publication in registration -----------------------------
 
 tbl_reg_pub_link_manual <-

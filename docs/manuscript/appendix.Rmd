@@ -4,6 +4,10 @@
 knitr::include_graphics(path(dir_figures, "flow-trials.pdf"))
 ```
 
+```{r app-tbl-link-by-reg-2014}
+as_kable(tbl_link_by_reg_2014, format = 'pipe')
+```
+
 ```{r app-tbl-si-if-abs-ft}
 as_kable(tbl_si_if_abs_ft, format = 'pipe')
 ```
