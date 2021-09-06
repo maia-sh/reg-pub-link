@@ -235,7 +235,7 @@ We used DOIs and PMIDs to search for full-text publications as PDFs, using a com
 
 ### Inclusion and exclusion criteria
 
-After updating registry data, we reapplied the IntoValue inclusion criteria: completion date between 2009 and 2017, interventional, complete based on study status, and conducted by a German UMC. Trials were considered to be conducted by a German UMC if a UMC was included as a trial sponsor, overall official, and/or responsible party in ClinicalTrials.gov or provided in study addresses in DRKS; trials with a German UMC as only a facility in ClinicalTrials.gov or recruitment location in DRKS were excluded. See @riedel2021c for further details on these criteria. We limited our sample to trials with results with a PMID and full-text publication.
+After updating registry data, we reapplied the IntoValue inclusion criteria: study completion date between 2009 and 2017, interventional, complete based on study status, and conducted by a German UMC. Trials were considered to be conducted by a German UMC if a UMC was included as a trial sponsor, overall official, and/or responsible party in ClinicalTrials.gov or provided in study addresses in DRKS; trials with a German UMC as only a facility in ClinicalTrials.gov or recruitment location in DRKS were excluded. See @riedel2021c for further details on these criteria. We limited our sample to trials with results with a PMID and full-text publication.
 
 ## Detection and classification of publication identifiers in registrations
 
