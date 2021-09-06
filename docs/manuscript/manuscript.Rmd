@@ -325,7 +325,7 @@ With improved TRN inclusion in bibliographic metadata and increased automatic in
 
 # Acknowledgments
 
-We would like to thank Kerstin Rubarth from the Charité Institut für Biometrie und Klinische Epidemiologie for her consultation on the statistical analysis, and Nicholas Devito for earlier versions of the trial registration number regular expressions.
+We would like to thank Kerstin Rubarth from the Charité Institut für Biometrie und Klinische Epidemiologie for her consultation on the statistical analysis, and Nicholas Devito for earlier versions of the trial registration number regular expressions. We also thank our colleague Till Bruckner for useful comments on an earlier version of this manuscript.
 
 # Funding
 
