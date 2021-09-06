@@ -3,13 +3,13 @@
 
 action_researchers <- "
 - Include TRN in abstract and full-text per CONSORT and ICMJE guidelines
-- Link publication in registry
+- Link publication in registration
 "
 
 example_researchers <- "—"
 
 action_registries <- "
-- Provide guidance on TRN formatting and reminder to include TRN in publications, and publications in registry
+- Provide guidance on TRN formatting and reminder to include TRN in publications, and publications in registration
 - Link publications automatically using TRNs in bibliographic database metadata
 - Provide metadata on linked publication type (i.e., result, background)
 "
@@ -22,7 +22,7 @@ action_institutions <- "
 "
 
 example_institutions <- "
-Ethics review offices or UMC-core facilities for clinical research could give researchers a info sheet with trial registration and reporting guidelines when reviewing trial. Bonuses, i.e., *Leistungsorientierte Mittel (LOM)*, could be disseminated for trial registration, reporting, and linking.
+Ethics review offices or UMC-core facilities for clinical research could give researchers an info sheet with trial registration and reporting guidelines when reviewing trial. Bonuses, i.e., *Leistungsorientierte Mittel (LOM)*, could be disseminated for trial registration, reporting, and linking.
 "
 
 action_journals <- "
@@ -32,7 +32,7 @@ action_journals <- "
 "
 
 example_journals <- "
-Taylor & Francis extracts TRNs from the abstract and full-text, submit this metadata to CrossRef and Pubmed, and displays the linked trial via Crossmark on the article page (CrossRef, 2020; Taylor & Francis Group, 2020)
+Taylor & Francis extracts TRNs from the abstract and full-text, submits this metadata to CrossRef and Pubmed, and displays the linked trial via Crossmark on the article page (CrossRef, 2020; Taylor & Francis Group, 2020)
 "
 # [@taylorfrancisgroup2020; @crossref2020c]
 #
