@@ -156,7 +156,7 @@ tbl_trials <-
   add_stat_label() %>%
 
   # modify_header(label = "**German UMC-led trials with published results**") %>%
-  modify_caption("**Characteristics of German UMC-led trials with published results** A trial was considered randomized if allocation included randomization. A trial was considered prospectively registered if registered in the same or previous months to start date. Summary results were taken from a structured data field in ClinicalTrials.gov, and determined based on manual inspection for terms such as *Ergebnisbericht* or *Abschlussbericht* in DRKS. *Top* journals refer to the journals with the greatest number of trial publications in our sample.") %>%
+  modify_caption("**Characteristics of German UMC-conducted trials with published results** A trial was considered randomized if allocation included randomization. A trial was considered prospectively registered if registered in the same or previous months to start date. Summary results were taken from a structured data field in ClinicalTrials.gov, and determined based on manual inspection for terms such as *Ergebnisbericht* or *Abschlussbericht* in DRKS. *Top* journals refer to the journals with the greatest number of trial publications in our sample.") %>%
   bold_labels() %>%
 
   # Remove rowname label
