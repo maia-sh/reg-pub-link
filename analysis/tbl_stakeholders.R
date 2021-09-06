@@ -6,7 +6,7 @@ action_researchers <- "
 - Link publication in registration
 "
 
-example_researchers <- "—"
+example_researchers <- "ClinicalTrials.gov provides a step-by-step tutorial for linking publications in the registration (U.S. National Library of Medicine, 2020)."
 
 action_registries <- "
 - Provide guidance on TRN formatting and reminder to include TRN in publications, and publications in registration

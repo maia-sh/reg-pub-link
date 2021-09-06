@@ -78,7 +78,7 @@ header-includes   :
   - \usepackage{orcidlink}
 always_allow_html: true
 nocite: |
-  @taylorfrancisgroup2020, @crossref2020c, @nationallibraryofmedicine2017c
+  @taylorfrancisgroup2020, @crossref2020c, @nationallibraryofmedicine2017c, @usnationallibraryofmedicine2020a
 editor_options: 
   chunk_output_type: console
 ---
@@ -120,7 +120,7 @@ create_bib(
 # figures (plots and tables)
 
 # Prepare directory
-dir_figures <- dir_create(here("manuscript", "figures"))
+dir_figures <- dir_create(here("docs", "manuscript", "figures"))
 
 # theme_gtsummary_compact()
 
@@ -348,4 +348,3 @@ MSH, BGC, and DS declare they have no direct conflict of interest related to thi
 :::
 
 \newpage
-
