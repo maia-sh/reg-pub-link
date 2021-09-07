@@ -3,7 +3,6 @@
 trials_links <-
   trials %>%
   select(id,
-         registry,
          has_reg_pub_link,
          has_iv_trn_secondary_id,
          has_iv_trn_abstract,
@@ -15,10 +14,7 @@ trials_links <-
     "TRN in PubMed metadata" = has_iv_trn_secondary_id,
     "Publication in registration" = has_reg_pub_link
   ) %>%
-  pivot_longer(
-    cols = c(-id, -registry),
-    names_to = "link"
-  ) %>%
+  pivot_longer(cols = -id, names_to = "link") %>%
   filter(value == TRUE) %>%
   group_by(id) %>%
   mutate(links = list(link)) %>%
@@ -36,24 +32,25 @@ trials_no_links <-
       !has_iv_trn_abstract &
       !has_iv_trn_ft
   ) %>%
-  select(id,
-         registry
-  ) %>%
+  select(id) %>%
   mutate(links = list(NULL))
 
-plot_upset_links_reg_pub_registry <-
+plot_upset_links_reg_pub <-
   bind_rows(trials_links, trials_no_links) %>%
-  rename(Registry = registry) %>%
   ggplot(aes(x = links)) +
-
-  # TODO: switch to "dodge" and fix numbers
-  geom_bar(aes(fill = Registry), position = "stack") +
-  geom_text(stat='count', aes(label = after_stat(count)), vjust = -.5) +
-  scale_y_continuous(expand = expansion(mult = c(0, .08))) +
-  # scale_fill_grey() +
-  scale_fill_manual(values = registry_colors) +
+  geom_bar() +
+  geom_text(
+    stat = 'count',
+    aes(label = scales::percent(after_stat(count)/nrow(trials), accuracy = 0.1)),
+    vjust = -.5,
+    size = 3.5) +
+  scale_y_continuous(
+    label = scales::label_percent(scale = 100/nrow(trials), accuracy = 1),
+    breaks = scales::breaks_width(nrow(trials)/20),
+    expand = expansion(mult = c(0, .05))
+  ) +
   ggupset::scale_x_upset() +
-  ylab("Number of trials") +
+  ylab("Percentage of trials") +
   xlab(NULL) +
   ggupset::theme_combmatrix(
     # combmatrix.label.make_space = FALSE,
@@ -67,7 +64,6 @@ plot_upset_links_reg_pub_registry <-
     axis.title.y = element_text(size = 11)
   )
 
-
 # # Move y axis label closer to plot
 # # Thanks to https://stackoverflow.com/questions/68593982
 # plot_upset_links_reg_pub_registry +
@@ -80,7 +76,8 @@ plot_upset_links_reg_pub_registry <-
 
 ggsave(
   path(dir_figures, "plot-upset-link-type.pdf"),
-  plot_upset_links_reg_pub_registry,
+  plot_upset_links_reg_pub,
+  scale = 1.25,
   width = 7,
   height = 5
   # scale = 2
@@ -88,7 +85,7 @@ ggsave(
 
 ggsave(
   path(dir_figures, "plot-upset-link-type.svg"),
-  plot_upset_links_reg_pub_registry,
+  plot_upset_links_reg_pub,
   scale = 1.25,
   width = 7,
   height = 5,
