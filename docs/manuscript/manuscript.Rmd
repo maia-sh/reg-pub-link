@@ -204,7 +204,7 @@ drks_query_date <- get_latest_query("DRKS", query_logs)
 ```
 
 ```{r analysis, cache = TRUE}
-dir_ls(here("analysis")) %>%
+dir_ls(here("analysis"), type = "file") %>%
   walk(source)
 ```
 

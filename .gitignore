@@ -10,6 +10,9 @@ data/*
 # Docs contains manuscript as well as submission pdfs and presentations
 docs/*
 
+# Deprecated scripts do not need to be tracked
+analysis/deprecated/*
+
 # Track only Rmd and references (since other files generated)
 !docs/manuscript
 docs/manuscript/*
