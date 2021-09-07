@@ -16,3 +16,4 @@ docs/manuscript/*
 !docs/manuscript/references.bib
 !docs/manuscript/manuscript.Rmd
 !docs/manuscript/appendix.Rmd
+!docs/manuscript/sage-vancouver.csl

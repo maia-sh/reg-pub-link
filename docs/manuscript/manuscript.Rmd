@@ -90,6 +90,7 @@ output            : papaja::apa6_pdf
 header-includes   :
   - \usepackage{orcidlink}
 always_allow_html: true
+csl: sage-vancouver.csl
 nocite: |
   @taylorfrancisgroup2020, @crossref2020c, @nationallibraryofmedicine2017c, @usnationallibraryofmedicine2020a
 editor_options: 
