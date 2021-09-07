@@ -86,7 +86,7 @@ draft             : no
 lang              : "en-US"
 documentclass     : "apa6"
 classoption       : "man"
-output            : papaja::apa6_pdf
+output            : papaja::apa6_word
 header-includes   :
   - \usepackage{orcidlink}
 always_allow_html: true
@@ -289,7 +289,7 @@ Per our inclusion criteria all trials in our sample (n = `r n_trials_ft`) were r
 as_kable(tbl_link_by_reg, format = "pipe")
 ```
 
-```{r plot-upset-links-reg-pub, fig.cap = "Percentage trials with each combination of links between registration and publication", out.width="80%"}
+```{r plot-upset-links-reg-pub, fig.cap = "Percentage of trials with each combination of links between registration and publication", out.width="80%"}
 knitr::include_graphics(path(dir_figures, "plot-upset-link-type.pdf"))
 ```
 
