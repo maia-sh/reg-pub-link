@@ -1,0 +1,24 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+
+r_citations <- papaja::cite_r(here::here("docs", "manuscript", "r-references.bib"))
+```
+
+This repository contains code for the project "Results publications are inadequately linked to trial registrations: An automated pipeline and evaluation of German university medical centers." The manuscript is computationally reproducible using this repository. Note that a few manual formatting tweaks to tables and figures were done for the final [manuscript](https://doi.org/10.1101/2021.08.23.21262478).
+
+To reproduce the manuscript:
+
+1.  Clone this repository
+2.  Run `renv::restore()` to ensure you have the necessary packages and versions
+3.  Knit [manuscript.Rmd](https://github.com/maia-sh/reg-pub-link/blob/master/docs/manuscript/manuscript.Rmd)
+
+This project uses `r r_citations`.
