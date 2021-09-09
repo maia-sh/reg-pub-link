@@ -1,5 +1,6 @@
-# Prepare actions and examples --------------------------------------------
+# https://www.anthonyschmidt.co/post/2020-06-03-making-apa-tables-with-gt/
 
+# Prepare actions and examples --------------------------------------------
 
 action_researchers <- "
 - Include TRN in abstract and full-text per CONSORT and ICMJE guidelines
